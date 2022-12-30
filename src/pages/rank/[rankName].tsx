@@ -50,7 +50,7 @@ const RankItem = ({ item, rank }: { item: RankItem; rank: number }) => {
           {rankPrefix(rank)}
           <h2 className="text-md tracking-wide">{item.name}</h2>
         </div>
-        <p className="text-xs tracking-wide">71M (30%)</p>
+        <p className="whitespace-nowrap text-xs tracking-wide">71M (30%)</p>
       </div>
       <div className="flex items-center justify-between text-xs text-gray">
         <q>The true G.O.A.T. is here</q>
@@ -76,12 +76,15 @@ const Rank: NextPage = () => {
   return (
     <>
       <main className="w-full flex-1 sm:w-3/4 md:w-3/5 lg:w-2/5">
-        <div className="px-4 pt-10 pb-2">
+        <div className="px-4 pt-6 pb-2">
           <h1 className="text-lg tracking-wide">
             {unKebab(rankQuery.data?.name)}
           </h1>
           <p className="text-xs text-gray">
             {"21 options • 543 votes • 301 comments"}
+          </p>
+          <p className="text-2xs tracking-wide text-brand">
+            #testing #some #tags
           </p>
         </div>
         <div className="flex flex-col">
