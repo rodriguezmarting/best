@@ -8,13 +8,32 @@ export const rankRouter = router({
         name: z.string(),
       })
     )
-    .query(({ ctx, input }) => {
-      return ctx.prisma.rank.findUnique({
-        where: {
-          name: input.name,
-        },
-        include: { items: true },
-      });
+    .query(async ({ ctx, input }) => {
+      const result = await ctx.prisma.$queryRaw<
+        {
+          totalComments: bigint;
+          totalRankItems: bigint;
+          totalVotes: bigint;
+          name: string;
+          tags: string[];
+        }[]
+      >`
+        SELECT r.name AS name,
+                COUNT(DISTINCT ri.id) AS "totalRankItems",
+                COUNT(DISTINCT v.id) AS "totalVotes",
+                COUNT(DISTINCT c.id) AS "totalComments",
+                ARRAY_AGG(DISTINCT t.name) AS tags
+        FROM "Rank" r
+        JOIN "RankItem" ri ON ri."rankId" = r.id
+        LEFT JOIN "Vote" v ON v."rankItemId" = ri.id
+        LEFT JOIN "Comment" c ON c."rankItemId" = ri.id
+        JOIN "_RankToTag" rtt ON rtt."A" = r.id
+        JOIN "Tag" t ON t.id = rtt."B"
+        WHERE r.name = ${input.name}
+        GROUP BY r.id
+      `;
+
+      return result[0];
     }),
   getAll: publicProcedure.query(({ ctx }) => {
     return ctx.prisma.$queryRaw<

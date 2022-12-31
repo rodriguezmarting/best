@@ -2,7 +2,6 @@ import { RankItem } from "@prisma/client";
 import { type NextPage } from "next";
 import Image from "next/image";
 import { useRouter } from "next/router";
-import { HiDotsVertical } from "react-icons/hi";
 
 import { trpc } from "../../utils/trpc";
 import { unKebab } from "../../utils/unkebab";
@@ -11,6 +10,7 @@ import GoldMedal from "../../../public/medal-gold.webp";
 import SilverMedal from "../../../public/medal-silver.webp";
 import BronzeMedal from "../../../public/medal-bronze.webp";
 import { GoComment } from "react-icons/go";
+import Link from "next/link";
 
 const borderColor = (rank: number) => {
   switch (rank) {
@@ -73,24 +73,35 @@ const Rank: NextPage = () => {
     { enabled: !!router.query.rankName }
   );
 
+  if (!rankQuery.data?.totalRankItems) {
+    return <p>Loading...</p>;
+  }
+
+  const { name, tags, totalComments, totalRankItems, totalVotes } =
+    rankQuery.data;
+
+  console.log("test, ", totalRankItems);
+
   return (
     <>
       <main className="w-full flex-1 sm:w-3/4 md:w-3/5 lg:w-2/5">
         <div className="px-4 pt-6 pb-2">
-          <h1 className="text-lg tracking-wide">
-            {unKebab(rankQuery.data?.name)}
-          </h1>
+          <h1 className="text-lg tracking-wide">{unKebab(name)}</h1>
           <p className="text-xs text-gray">
-            {"21 options • 543 votes • 301 comments"}
+            {`${totalRankItems.toString()} options • ${totalVotes.toString()} votes • ${totalComments.toString()} comments`}
           </p>
           <p className="text-2xs tracking-wide text-brand">
-            #testing #some #tags
+            {(tags ?? []).map((tag) => (
+              <Link href={`/${tag}`} key={tag}>
+                #{tag}{" "}
+              </Link>
+            ))}
           </p>
         </div>
         <div className="flex flex-col">
-          {rankQuery.data?.items.map((item, index) => (
+          {/* {rankQuery.data?.items.map((item, index) => (
             <RankItem key={item.id} item={item} rank={++index} />
-          ))}
+          ))} */}
         </div>
       </main>
     </>
