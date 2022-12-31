@@ -2,7 +2,7 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
   previewFeatures = ["filteredRelationCount"]
 }
 
@@ -116,6 +116,7 @@ model Comment {
   comment    String
   userId     String
   rankItemId String
+  likes      Int      @default(0)
   user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   rankItem   RankItem @relation(fields: [rankItemId], references: [id], onDelete: Cascade)
   createdAt  DateTime @default(now())

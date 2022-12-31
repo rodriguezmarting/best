@@ -1,8 +1,8 @@
-import { RankItem } from "@prisma/client";
 import { type NextPage } from "next";
 import Image from "next/image";
 import { useRouter } from "next/router";
 
+import type { RouterOutputs } from "../../utils/trpc";
 import { trpc } from "../../utils/trpc";
 import { unKebab } from "../../utils/unkebab";
 
@@ -38,7 +38,15 @@ const rankPrefix = (rank: number) => {
   }
 };
 
-const RankItem = ({ item, rank }: { item: RankItem; rank: number }) => {
+const RankItem = ({
+  item,
+  rank,
+  totalVotes,
+}: {
+  item: RouterOutputs["rank"]["rankItemsByRankName"][number];
+  rank: number;
+  totalVotes: number;
+}) => {
   return (
     <div
       className={`flex w-full flex-col border-b border-solid border-gray ${borderColor(
@@ -48,15 +56,24 @@ const RankItem = ({ item, rank }: { item: RankItem; rank: number }) => {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           {rankPrefix(rank)}
-          <h2 className="text-md tracking-wide">{item.name}</h2>
+          <h2 className="text-md tracking-wide">{item.rankItemName}</h2>
         </div>
-        <p className="whitespace-nowrap text-xs tracking-wide">71M (30%)</p>
+        <p className="whitespace-nowrap text-xs tracking-wide">
+          {item.totalRankItemVotes.toString()} (
+          {Math.floor((Number(item.totalRankItemVotes) / totalVotes) * 100)}%)
+        </p>
       </div>
       <div className="flex items-center justify-between text-xs text-gray">
-        <q>The true G.O.A.T. is here</q>
+        {item.rankItemTopComment ? (
+          <q>{item.rankItemTopComment}</q>
+        ) : (
+          <div></div>
+        )}
         <div className="flex items-center justify-center gap-1">
           <GoComment className="pt-0.5" />
-          <p className="tracking-wide">100K</p>
+          <p className="tracking-wide">
+            {item.totalRankItemComments.toString()}
+          </p>
         </div>
       </div>
     </div>
@@ -66,21 +83,26 @@ const RankItem = ({ item, rank }: { item: RankItem; rank: number }) => {
 const Rank: NextPage = () => {
   const router = useRouter();
 
-  const rankQuery = trpc.rank.findByName.useQuery(
+  const rankBaseInfoQuery = trpc.rank.baseInfoByName.useQuery(
     {
       name: router.query.rankName as string,
     },
     { enabled: !!router.query.rankName }
   );
 
-  if (!rankQuery.data?.totalRankItems) {
+  const rankItemsQuery = trpc.rank.rankItemsByRankName.useQuery(
+    {
+      name: router.query.rankName as string,
+    },
+    { enabled: !!router.query.rankName }
+  );
+
+  if (!rankBaseInfoQuery.data || !rankItemsQuery.data) {
     return <p>Loading...</p>;
   }
 
   const { name, tags, totalComments, totalRankItems, totalVotes } =
-    rankQuery.data;
-
-  console.log("test, ", totalRankItems);
+    rankBaseInfoQuery.data;
 
   return (
     <>
@@ -91,17 +113,24 @@ const Rank: NextPage = () => {
             {`${totalRankItems.toString()} options • ${totalVotes.toString()} votes • ${totalComments.toString()} comments`}
           </p>
           <p className="text-2xs tracking-wide text-brand">
-            {(tags ?? []).map((tag) => (
-              <Link href={`/${tag}`} key={tag}>
-                #{tag}{" "}
-              </Link>
-            ))}
+            {tags && tags.length > 0 && tags[0]
+              ? tags.map((tag) => (
+                  <Link href={`/${tag}`} key={tag}>
+                    #{tag}{" "}
+                  </Link>
+                ))
+              : null}
           </p>
         </div>
         <div className="flex flex-col">
-          {/* {rankQuery.data?.items.map((item, index) => (
-            <RankItem key={item.id} item={item} rank={++index} />
-          ))} */}
+          {rankItemsQuery.data?.map((item, index) => (
+            <RankItem
+              key={item.rankItemName}
+              item={item}
+              rank={++index}
+              totalVotes={Number(totalVotes)}
+            />
+          ))}
         </div>
       </main>
     </>
