@@ -1,11 +1,40 @@
 import { z } from "zod";
-import { router, publicProcedure } from "../trpc";
+import { router, publicProcedure, protectedProcedure } from "../trpc";
 
 export const rankRouter = router({
+  userVote: protectedProcedure
+    .input(
+      z.object({
+        rankName: z.string(),
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      const userId = ctx.session.user.id;
+
+      return ctx.prisma.vote.findFirst({
+        select: {
+          rankItem: {
+            select: {
+              name: true,
+            },
+          },
+        },
+        where: {
+          AND: {
+            userId,
+            rankItem: {
+              rank: {
+                name: input.rankName,
+              },
+            },
+          },
+        },
+      });
+    }),
   baseInfoByName: publicProcedure
     .input(
       z.object({
-        name: z.string(),
+        rankName: z.string(),
       })
     )
     .query(async ({ ctx, input }) => {
@@ -29,7 +58,7 @@ export const rankRouter = router({
         LEFT JOIN "Comment" c ON c."rankItemId" = ri.id
         LEFT JOIN "_RankToTag" rtt ON rtt."A" = r.id
         LEFT JOIN "Tag" t ON t.id = rtt."B"
-        WHERE r.name = ${input.name}
+        WHERE r.name = ${input.rankName}
         GROUP BY r.id
       `;
 
@@ -60,7 +89,7 @@ export const rankRouter = router({
       LEFT JOIN "Comment" c ON c."rankItemId" = ri.id
       WHERE r.name = ${input.name}
       GROUP BY ri.id, ri.name
-      ORDER BY COUNT(v.id) DESC
+      ORDER BY COUNT(DISTINCT v.id) DESC
       `;
     }),
   getAll: publicProcedure.query(({ ctx }) => {

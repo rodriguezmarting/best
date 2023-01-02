@@ -9,11 +9,13 @@ import { unKebab } from "../../utils/unkebab";
 import GoldMedal from "../../../public/medal-gold.webp";
 import SilverMedal from "../../../public/medal-silver.webp";
 import BronzeMedal from "../../../public/medal-bronze.webp";
-import { GoComment } from "react-icons/go";
+import { GoCheck, GoComment } from "react-icons/go";
 import Link from "next/link";
 import { shortNumber } from "../../utils/format";
+import { useSession } from "next-auth/react";
+import { useMemo } from "react";
 
-const borderColor = (rank: number) => {
+const bgColor = (rank: number) => {
   switch (rank) {
     case 1:
       return "bg-dark-gold";
@@ -43,21 +45,32 @@ const RankItem = ({
   item,
   rank,
   totalVotes,
+  votedRank,
 }: {
   item: RouterOutputs["rank"]["rankItemsByRankName"][number];
   rank: number;
   totalVotes: number;
+  votedRank: number;
 }) => {
+  const votedByUser = votedRank === rank;
+
   return (
     <div
-      className={`flex w-full flex-col border-b border-solid border-gray ${borderColor(
+      className={`flex w-full flex-col  ${
+        votedByUser
+          ? "border-y border-brand"
+          : votedRank - 1 !== rank
+          ? "border-b border-gray "
+          : "border-gray"
+      } ${bgColor(
         rank
-      )} py-2 px-3 shadow-lg first:border-t sm:border-x`}
+      )} border-solid py-2 px-3 shadow-lg first:border-t sm:border-x`}
     >
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           {rankPrefix(rank)}
           <h2 className="text-md tracking-wide">{item.rankItemName}</h2>
+          {votedByUser ? <GoCheck className="text-brand" /> : null}
         </div>
         <p className="whitespace-nowrap text-xs tracking-wide">
           {shortNumber(item.totalRankItemVotes)} (
@@ -86,7 +99,7 @@ const Rank: NextPage = () => {
 
   const rankBaseInfoQuery = trpc.rank.baseInfoByName.useQuery(
     {
-      name: router.query.rankName as string,
+      rankName: router.query.rankName as string,
     },
     { enabled: !!router.query.rankName }
   );
@@ -97,6 +110,22 @@ const Rank: NextPage = () => {
     },
     { enabled: !!router.query.rankName }
   );
+
+  const { data: sessionData } = useSession();
+  const { data: userVote } = trpc.rank.userVote.useQuery(
+    {
+      rankName: router.query.rankName as string,
+    },
+    { enabled: sessionData?.user !== undefined }
+  );
+
+  const votedIndex = useMemo(() => {
+    return rankItemsQuery.data
+      ? rankItemsQuery.data.findIndex(
+          (item) => item.rankItemName === userVote?.rankItem.name
+        )
+      : -1;
+  }, [rankItemsQuery.data, userVote?.rankItem.name]);
 
   if (!rankBaseInfoQuery.data || !rankItemsQuery.data) {
     return <p>Loading...</p>;
@@ -132,6 +161,7 @@ const Rank: NextPage = () => {
               item={item}
               rank={++index}
               totalVotes={Number(totalVotes)}
+              votedRank={votedIndex + 1}
             />
           ))}
         </div>
