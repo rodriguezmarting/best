@@ -9,10 +9,10 @@ module.exports = {
       black: "#0F0F0F",
       "dark-gray": "#16181C",
       gray: "#71767B",
-      "dark-blue": "#023E7D",
       brand: "#1D9BF0",
-      gold: "#CCA000",
-      "light-gold": "#F5CC00",
+      "dark-gold": "#181303",
+      "dark-silver": "#121212",
+      "dark-bronze": "#120B04",
     },
     boxShadow: {
       sm: "0px 2px 4px 0px rgba(11, 10, 55, 0.15)",

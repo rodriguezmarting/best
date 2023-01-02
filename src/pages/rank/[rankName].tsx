@@ -15,11 +15,11 @@ import Link from "next/link";
 const borderColor = (rank: number) => {
   switch (rank) {
     case 1:
-      return "bg-[#181303]";
+      return "bg-dark-gold";
     case 2:
-      return "bg-[#121212]";
+      return "bg-dark-silver";
     case 3:
-      return "bg-[#120B04]";
+      return "bg-dark-bronze";
     default:
       return "bg-black";
   }
