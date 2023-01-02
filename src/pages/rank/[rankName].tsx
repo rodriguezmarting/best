@@ -11,6 +11,7 @@ import SilverMedal from "../../../public/medal-silver.webp";
 import BronzeMedal from "../../../public/medal-bronze.webp";
 import { GoComment } from "react-icons/go";
 import Link from "next/link";
+import { shortNumber } from "../../utils/format";
 
 const borderColor = (rank: number) => {
   switch (rank) {
@@ -59,7 +60,7 @@ const RankItem = ({
           <h2 className="text-md tracking-wide">{item.rankItemName}</h2>
         </div>
         <p className="whitespace-nowrap text-xs tracking-wide">
-          {item.totalRankItemVotes.toString()} (
+          {shortNumber(item.totalRankItemVotes)} (
           {Math.floor((Number(item.totalRankItemVotes) / totalVotes) * 100)}%)
         </p>
       </div>
@@ -72,7 +73,7 @@ const RankItem = ({
         <div className="flex items-center justify-center gap-1">
           <GoComment className="pt-0.5" />
           <p className="tracking-wide">
-            {item.totalRankItemComments.toString()}
+            {shortNumber(item.totalRankItemComments)}
           </p>
         </div>
       </div>
@@ -110,7 +111,9 @@ const Rank: NextPage = () => {
         <div className="px-4 pt-6 pb-2">
           <h1 className="text-lg tracking-wide">{unKebab(name)}</h1>
           <p className="text-xs text-gray">
-            {`${totalRankItems.toString()} options • ${totalVotes.toString()} votes • ${totalComments.toString()} comments`}
+            {`${shortNumber(totalRankItems)} options • ${shortNumber(
+              totalVotes
+            )} votes • ${shortNumber(totalComments)} comments`}
           </p>
           <p className="text-2xs tracking-wide text-brand">
             {tags && tags.length > 0 && tags[0]

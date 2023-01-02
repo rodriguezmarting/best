@@ -9,6 +9,7 @@ import trendingIcon from "../../public/trending-icon.webp";
 import { GoCheck, GoComment } from "react-icons/go";
 import { HiDotsVertical } from "react-icons/hi";
 import Image from "next/image";
+import { shortNumber } from "../utils/format";
 
 const Rank = ({
   rank,
@@ -43,12 +44,14 @@ const Rank = ({
           <div className="flex items-center justify-center gap-1">
             <GoComment className="pt-0.5" />
             <p className=" text-2xs tracking-wide">
-              {Number(rank.totalComments)}
+              {shortNumber(rank.totalComments)}
             </p>
           </div>
           <div className="flex items-center justify-center gap-0.5">
             <GoCheck />
-            <p className="text-2xs tracking-wide">{Number(rank.totalVotes)}</p>
+            <p className="text-2xs tracking-wide">
+              {shortNumber(rank.totalVotes)}
+            </p>
           </div>
         </div>
       </div>
