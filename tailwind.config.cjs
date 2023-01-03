@@ -13,6 +13,7 @@ module.exports = {
       "dark-gold": "#181303",
       "dark-silver": "#121212",
       "dark-bronze": "#120B04",
+      "transparent-black": "rgba(0, 0, 0, 0.44)",
     },
     boxShadow: {
       sm: "0px 2px 4px 0px rgba(11, 10, 55, 0.15)",

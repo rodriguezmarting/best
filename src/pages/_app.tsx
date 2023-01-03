@@ -29,8 +29,13 @@ const MyApp: AppType<{ session: Session | null }> = ({
       </Head>
       <SessionProvider session={session}>
         <div
-          className={`${satoshiFont.variable} flex min-h-screen w-full flex-col items-center bg-black font-sans text-white`}
+          className={`flex min-h-screen w-full flex-col items-center bg-black font-sans text-white`}
         >
+          <style jsx global>{`
+            html {
+              font-family: ${satoshiFont.style.fontFamily};
+            }
+          `}</style>
           <Component {...pageProps} />
         </div>
       </SessionProvider>

@@ -12,8 +12,13 @@ import BronzeMedal from "../../../public/medal-bronze.webp";
 import { GoCheck, GoComment } from "react-icons/go";
 import Link from "next/link";
 import { shortNumber } from "../../utils/format";
-import { useSession } from "next-auth/react";
+import { signIn, useSession } from "next-auth/react";
+import type { ReactNode } from "react";
+import { useCallback } from "react";
 import { useMemo } from "react";
+
+import * as Dialog from "@radix-ui/react-dialog";
+import { ConditionalWrapper } from "../../utils/ConditionalWrapper";
 
 const bgColor = (rank: number) => {
   switch (rank) {
@@ -46,11 +51,13 @@ const RankItem = ({
   rank,
   totalVotes,
   votedRank,
+  showAuthDialog,
 }: {
   item: RouterOutputs["rank"]["rankItemsByRankName"][number];
   rank: number;
   totalVotes: number;
   votedRank: number;
+  showAuthDialog: boolean;
 }) => {
   const votedByUser = votedRank === rank;
 
@@ -66,17 +73,23 @@ const RankItem = ({
         rank
       )} border-solid py-2 px-3 shadow-lg first:border-t sm:border-x`}
     >
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          {rankPrefix(rank)}
-          <h2 className="text-md tracking-wide">{item.rankItemName}</h2>
-          {votedByUser ? <GoCheck className="text-brand" /> : null}
-        </div>
-        <p className="whitespace-nowrap text-xs tracking-wide">
-          {shortNumber(item.totalRankItemVotes)} (
-          {Math.floor((Number(item.totalRankItemVotes) / totalVotes) * 100)}%)
-        </p>
-      </div>
+      <ConditionalWrapper
+        condition={showAuthDialog}
+        wrapper={(children) => <AuthDialog>{children}</AuthDialog>}
+      >
+        <button className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            {rankPrefix(rank)}
+            <h2 className="text-md tracking-wide">{item.rankItemName}</h2>
+            {votedByUser ? <GoCheck className="text-brand" /> : null}
+          </div>
+          <p className="whitespace-nowrap text-xs tracking-wide">
+            {shortNumber(item.totalRankItemVotes)} (
+            {Math.floor((Number(item.totalRankItemVotes) / totalVotes) * 100)}
+            %)
+          </p>
+        </button>
+      </ConditionalWrapper>
       <div className="flex items-center justify-between text-xs text-gray">
         {item.rankItemTopComment ? (
           <q>{item.rankItemTopComment}</q>
@@ -91,6 +104,35 @@ const RankItem = ({
         </div>
       </div>
     </div>
+  );
+};
+
+const AuthDialog = ({ children }: { children: ReactNode }) => {
+  return (
+    <Dialog.Root>
+      <Dialog.Trigger asChild>{children}</Dialog.Trigger>
+      <Dialog.Portal>
+        <Dialog.Overlay className="fixed inset-0 bg-transparent-black" />
+        <Dialog.Content className="fixed top-1/2 left-1/2 w-5/6 -translate-x-1/2 -translate-y-1/2 rounded-md bg-dark-gray p-6 text-white shadow-sm sm:w-3/5 md:w-2/5 lg:w-1/3 xl:w-1/4">
+          <Dialog.Title>
+            <h3 className="pb-2 text-lg">Before Voting:</h3>
+          </Dialog.Title>
+          <Dialog.Description>
+            <p className="pb-6">Only authenticated users can vote!</p>
+          </Dialog.Description>
+          <div className="flex justify-center">
+            <Dialog.Close asChild>
+              <button
+                onClick={() => signIn()}
+                className="rounded-md bg-brand px-6 py-2 font-bold tracking-wider"
+              >
+                Sign In
+              </button>
+            </Dialog.Close>
+          </div>
+        </Dialog.Content>
+      </Dialog.Portal>
+    </Dialog.Root>
   );
 };
 
@@ -162,6 +204,7 @@ const Rank: NextPage = () => {
               rank={++index}
               totalVotes={Number(totalVotes)}
               votedRank={votedIndex + 1}
+              showAuthDialog={sessionData?.user === undefined}
             />
           ))}
         </div>
