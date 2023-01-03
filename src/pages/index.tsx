@@ -19,18 +19,20 @@ const Rank = ({
   index: number;
 }) => {
   return (
-    <Link
-      href={`/rank/${rank.name}`}
-      className="hover:bg-black-gray flex w-full flex-col gap-3 border-b border-solid border-gray bg-black py-2 px-3 shadow-lg first:border-t sm:border-x"
-    >
+    <div className="hover:bg-black-gray flex w-full flex-col border-b border-solid border-gray bg-black py-2 px-3 shadow-lg first:border-t sm:border-x">
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
+        <Link
+          href={`/rank/${rank.name}`}
+          className="flex w-full items-center gap-2 pb-3"
+        >
           <span className="text-xs tracking-wider text-gray">
             {`#${index}`}{" "}
           </span>
           <h2 className="text-md tracking-wide">{unKebab(rank.name)}</h2>
+        </Link>
+        <div className="pb-3">
+          <HiDotsVertical className="text-gray" />
         </div>
-        <HiDotsVertical className="text-gray" />
       </div>
       <div className="flex items-center justify-between text-gray">
         <p className="text-2xs tracking-wide text-brand">
@@ -40,29 +42,29 @@ const Rank = ({
             </Link>
           ))}
         </p>
-        <div className="flex gap-3 font-bold text-gray">
-          <div className="flex items-center justify-center gap-1">
-            <GoComment className="pt-0.5" />
-            <p className=" text-2xs tracking-wide">
-              {shortNumber(rank.totalComments)}
-            </p>
+        <Link href={`/rank/${rank.name}`} className="flex w-full justify-end">
+          <div className="flex gap-3 font-bold text-gray">
+            <div className="flex items-center justify-center gap-1">
+              <GoComment className="pt-0.5" />
+              <p className=" text-2xs tracking-wide">
+                {shortNumber(rank.totalComments)}
+              </p>
+            </div>
+            <div className="flex items-center justify-center gap-0.5">
+              <GoCheck />
+              <p className="text-2xs tracking-wide">
+                {shortNumber(rank.totalVotes)}
+              </p>
+            </div>
           </div>
-          <div className="flex items-center justify-center gap-0.5">
-            <GoCheck />
-            <p className="text-2xs tracking-wide">
-              {shortNumber(rank.totalVotes)}
-            </p>
-          </div>
-        </div>
+        </Link>
       </div>
-    </Link>
+    </div>
   );
 };
 
 const Home: NextPage = () => {
   const ranksQuery = trpc.rank.getAll.useQuery();
-
-  console.log(ranksQuery.data);
 
   return (
     <>
