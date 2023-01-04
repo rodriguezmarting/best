@@ -36,13 +36,15 @@ const Rank = ({
       </div>
       <div className="flex items-center justify-between text-gray">
         <p className="text-2xs tracking-wide text-brand">
-          {rank.tags.map((tag) => (
-            <Link href={`/${tag}`} key={tag}>
-              #{tag}{" "}
-            </Link>
-          ))}
+          {rank.tags && rank.tags[0]
+            ? rank.tags.map((tag) => (
+                <Link href={`/tag/${tag}`} key={tag}>
+                  #{tag}{" "}
+                </Link>
+              ))
+            : null}
         </p>
-        <Link href={`/rank/${rank.name}`} className="flex w-full justify-end">
+        <Link href={`/rank/${rank.name}`} className="flex justify-end">
           <div className="flex gap-3 font-bold text-gray">
             <div className="flex items-center justify-center gap-1">
               <GoComment className="pt-0.5" />

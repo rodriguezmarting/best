@@ -189,7 +189,7 @@ const Rank: NextPage = () => {
           <p className="text-2xs tracking-wide text-brand">
             {tags && tags.length > 0 && tags[0]
               ? tags.map((tag) => (
-                  <Link href={`/${tag}`} key={tag}>
+                  <Link href={`/tag/${tag}`} key={tag}>
                     #{tag}{" "}
                   </Link>
                 ))

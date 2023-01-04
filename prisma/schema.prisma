@@ -55,6 +55,7 @@ model User {
   tags          Tag[]
   votes         Vote[]
   comments      Comment[]
+  likes         Like[]
 }
 
 model VerificationToken {
@@ -116,9 +117,19 @@ model Comment {
   comment    String
   userId     String
   rankItemId String
-  likes      Int      @default(0)
+  likes      Like[]
   user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   rankItem   RankItem @relation(fields: [rankItemId], references: [id], onDelete: Cascade)
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
+}
+
+model Like {
+  id        String   @id @default(cuid())
+  userId    String
+  commentId String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  comment   Comment  @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

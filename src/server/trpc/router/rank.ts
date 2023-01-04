@@ -82,7 +82,18 @@ export const rankRouter = router({
       SELECT ri.name AS "rankItemName",
        COUNT(DISTINCT v.id) AS "totalRankItemVotes",
        COUNT(DISTINCT c.id) AS "totalRankItemComments",
-       (SELECT c2.comment FROM "Comment" c2 WHERE c2."rankItemId" = ri.id AND c2.likes = (SELECT MAX(likes) FROM "Comment" WHERE "rankItemId" = ri.id) LIMIT 1 OFFSET 0) AS "rankItemTopComment"
+       (
+         SELECT c2.comment
+         FROM "Comment" c2
+         LEFT JOIN (
+           SELECT "commentId", COUNT(DISTINCT li.id) AS likes
+           FROM "Like" li
+           GROUP BY "commentId"
+         ) l ON l."commentId" = c2.id
+         WHERE c2."rankItemId" = ri.id
+         ORDER BY COALESCE(l.likes, 0) DESC
+         LIMIT 1
+       ) AS "rankItemTopComment"
       FROM "Rank" r
       JOIN "RankItem" ri ON ri."rankId" = r.id
       LEFT JOIN "Vote" v ON v."rankItemId" = ri.id
