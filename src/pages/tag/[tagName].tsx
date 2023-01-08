@@ -2,6 +2,7 @@ import { type NextPage } from "next";
 
 import { useRouter } from "next/router";
 import { RankCard } from "../../components/RankCard";
+import { LoadingSpinner } from "../../utils/LoadingSpinner";
 import { trpc } from "../../utils/trpc";
 
 const TagPage: NextPage = () => {
@@ -19,9 +20,15 @@ const TagPage: NextPage = () => {
           #{router.query.tagName}
         </h1>
         <div className="flex flex-col">
-          {ranksQuery.data?.map((rank, index) => (
-            <RankCard key={rank.name} rank={rank} index={++index} />
-          ))}
+          {!ranksQuery.data ? (
+            <div className="flex items-center justify-center pt-12">
+              <LoadingSpinner size={10} />
+            </div>
+          ) : (
+            ranksQuery.data?.map((rank, index) => (
+              <RankCard key={rank.name} rank={rank} index={++index} />
+            ))
+          )}
         </div>
       </main>
     </>

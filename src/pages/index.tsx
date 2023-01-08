@@ -5,6 +5,7 @@ import trendingIcon from "../../public/trending-icon.webp";
 import Image from "next/image";
 import { RankCard } from "../components/RankCard";
 import { AuthShowcase } from "../components/AuthShowcase";
+import { LoadingSpinner } from "../utils/LoadingSpinner";
 
 const Home: NextPage = () => {
   const ranksQuery = trpc.rank.getAll.useQuery();
@@ -20,11 +21,17 @@ const Home: NextPage = () => {
           />
           Trending Ranks
         </h1>
-        <div className="flex flex-col">
-          {ranksQuery.data?.map((rank, index) => (
-            <RankCard key={rank.name} rank={rank} index={++index} />
-          ))}
-        </div>
+        {!ranksQuery.data ? (
+          <div className="flex items-center justify-center p-12">
+            <LoadingSpinner size={10} />
+          </div>
+        ) : (
+          <div className="flex flex-col">
+            {ranksQuery.data?.map((rank, index) => (
+              <RankCard key={rank.name} rank={rank} index={++index} />
+            ))}
+          </div>
+        )}
       </main>
       <footer>
         <AuthShowcase />

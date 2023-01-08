@@ -10,6 +10,7 @@ import { useSession } from "next-auth/react";
 import { useMemo } from "react";
 
 import { RankItemCard } from "../../components/RankItemCard";
+import { LoadingSpinner } from "../../utils/LoadingSpinner";
 
 const Rank: NextPage = () => {
   const router = useRouter();
@@ -45,7 +46,11 @@ const Rank: NextPage = () => {
   }, [rankItemsQuery.data, userVote?.rankItem.name]);
 
   if (!rankBaseInfoQuery.data || !rankItemsQuery.data) {
-    return <p>Loading...</p>;
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <LoadingSpinner size={10} />
+      </div>
+    );
   }
 
   const { name, tags, totalComments, totalRankItems, totalVotes } =

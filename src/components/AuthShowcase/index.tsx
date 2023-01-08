@@ -10,8 +10,8 @@ export const AuthShowcase: React.FC = () => {
   );
 
   return (
-    <div className="flex flex-col items-center justify-center gap-4">
-      <p className="text-center text-2xl">
+    <div className="flex flex-col items-center justify-center gap-4 p-6">
+      <p className="text-center text-md">
         {sessionData && <span>Logged in as {sessionData.user?.name}</span>}
         {secretMessage && <span> - {secretMessage}</span>}
       </p>
