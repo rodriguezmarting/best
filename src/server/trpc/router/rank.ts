@@ -103,6 +103,36 @@ export const rankRouter = router({
       ORDER BY COUNT(DISTINCT v.id) DESC
       `;
     }),
+  getAllByTag: publicProcedure
+    .input(
+      z.object({
+        tag: z.string(),
+      })
+    )
+    .query(({ ctx, input }) => {
+      return ctx.prisma.$queryRaw<
+        {
+          name: string;
+          totalComments: bigint;
+          totalVotes: bigint;
+          tags: string[];
+          interactionsRatio: number;
+        }[]
+      >`
+      SELECT r.name, ARRAY_AGG(DISTINCT t.name) as "tags",
+       COUNT(DISTINCT v.id) AS "totalVotes", COUNT(DISTINCT c.id) AS "totalComments",
+       (COUNT(DISTINCT v.id) + COUNT(DISTINCT c.id)) / (EXTRACT(MINUTE FROM NOW() - r."createdAt")) AS "interactionsRatio"
+      FROM "Rank" r
+      LEFT JOIN "RankItem" ri ON r.id = ri."rankId"
+      LEFT JOIN "Vote" v ON ri.id = v."rankItemId"
+      LEFT JOIN "Comment" c ON ri.id = c."rankItemId"
+      LEFT JOIN "_RankToTag" rt ON r.id = rt."A"
+      LEFT JOIN "Tag" t ON rt."B" = t.id
+      GROUP BY r.id
+      HAVING ${input.tag} = ANY(ARRAY_AGG(DISTINCT t.name))
+      ORDER BY "interactionsRatio" DESC
+    `;
+    }),
   getAll: publicProcedure.query(({ ctx }) => {
     return ctx.prisma.$queryRaw<
       {
