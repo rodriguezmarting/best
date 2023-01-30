@@ -30,7 +30,7 @@ const Rank: NextPage = () => {
   );
 
   const { data: sessionData } = useSession();
-  const { data: userVote } = trpc.rank.userVote.useQuery(
+  const { data: userVote } = trpc.rank.getUserVote.useQuery(
     {
       rankName: router.query.rankName as string,
     },
@@ -84,6 +84,7 @@ const Rank: NextPage = () => {
               rank={++index}
               totalVotes={Number(totalVotes)}
               votedRank={votedIndex + 1}
+              currentVote={userVote?.rankItem.name}
               showAuthDialog={sessionData?.user === undefined}
             />
           ))}

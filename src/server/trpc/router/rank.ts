@@ -2,7 +2,41 @@ import { z } from "zod";
 import { router, publicProcedure, protectedProcedure } from "../trpc";
 
 export const rankRouter = router({
-  userVote: protectedProcedure
+  vote: protectedProcedure
+    .input(z.object({ rankName: z.string() }))
+    .mutation(async ({ input, ctx: { prisma, session } }) => {
+      const userId = session.user.id;
+
+      const rankItemId = await prisma.rankItem.findFirst({
+        where: { name: input.rankName },
+      });
+
+      if (!rankItemId) return { error: "rank item not found" };
+
+      const previousVotesByUser = await prisma.$queryRaw<{ id: string }[]>`
+        SELECT v.id
+        FROM "Rank" r
+        JOIN "RankItem" ri ON ri."rankId" = r.id
+        JOIN "Vote" v ON v."rankItemId" = ri.id
+        WHERE r.id = ${rankItemId.rankId} AND v."userId" = ${userId}
+        `;
+
+      if (previousVotesByUser && previousVotesByUser.length > 0) {
+        await prisma.vote.deleteMany({
+          where: { id: { in: previousVotesByUser.map((vote) => vote.id) } },
+        });
+      }
+
+      await prisma.vote.create({
+        data: {
+          rankItemId: rankItemId.id,
+          userId,
+        },
+      });
+
+      return { message: "vote successfully created" };
+    }),
+  getUserVote: protectedProcedure
     .input(
       z.object({
         rankName: z.string(),

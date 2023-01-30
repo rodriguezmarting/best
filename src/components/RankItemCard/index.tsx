@@ -2,11 +2,12 @@ import { GoCheck, GoComment } from "react-icons/go";
 import { ConditionalWrapper } from "../../utils/ConditionalWrapper";
 import { shortNumber } from "../../utils/format";
 import type { RouterOutputs } from "../../utils/trpc";
+import { trpc } from "../../utils/trpc";
 import GoldMedal from "../../../public/medal-gold.webp";
 import SilverMedal from "../../../public/medal-silver.webp";
 import BronzeMedal from "../../../public/medal-bronze.webp";
 import Image from "next/image";
-import { AuthDialog } from "../AuthDialog";
+import { VoteDialog } from "../VoteDialog";
 
 const bgColor = (rank: number) => {
   switch (rank) {
@@ -40,14 +41,24 @@ export const RankItemCard = ({
   totalVotes,
   votedRank,
   showAuthDialog,
+  currentVote,
 }: {
   item: RouterOutputs["rank"]["rankItemsByRankName"][number];
   rank: number;
   totalVotes: number;
   votedRank: number;
   showAuthDialog: boolean;
+  currentVote?: string;
 }) => {
   const votedByUser = votedRank === rank;
+  const showVoteDialog =
+    showAuthDialog || (!!currentVote && currentVote !== item.rankItemName);
+  const utils = trpc.useContext();
+  const vote = trpc.rank.vote.useMutation({
+    onSuccess: () => {
+      utils.invalidate();
+    },
+  });
 
   return (
     <div
@@ -62,10 +73,23 @@ export const RankItemCard = ({
       )} border-solid py-2 px-3 shadow-lg first:border-t sm:border-x`}
     >
       <ConditionalWrapper
-        condition={showAuthDialog}
-        wrapper={(children) => <AuthDialog>{children}</AuthDialog>}
+        condition={showVoteDialog}
+        wrapper={(children) => (
+          <VoteDialog
+            currentVote={currentVote ?? ""}
+            newVote={item.rankItemName}
+            showAuthDialog={showAuthDialog}
+          >
+            {children}
+          </VoteDialog>
+        )}
       >
-        <button className="flex items-center justify-between">
+        <button
+          className="flex items-center justify-between"
+          onClick={() => {
+            if (!showVoteDialog) vote.mutate({ rankName: item.rankItemName });
+          }}
+        >
           <div className="flex items-center gap-2">
             {rankPrefix(rank)}
             <h2 className="text-md tracking-wide">{item.rankItemName}</h2>
