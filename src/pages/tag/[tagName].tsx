@@ -16,7 +16,7 @@ const TagPage: NextPage = () => {
   return (
     <>
       <main className="w-full flex-1 sm:w-3/4 md:w-3/5 lg:w-2/5">
-        <h1 className="mb-4 flex w-full items-center gap-3 px-4 pt-10 text-lg tracking-wide">
+        <h1 className="flex w-full items-center gap-3 p-6 text-lg tracking-wide">
           #{router.query.tagName}
         </h1>
         <div className="flex flex-col">

@@ -61,7 +61,7 @@ export const RankItemCard = ({
   });
 
   return (
-    <div
+    <li
       className={`flex w-full flex-col  ${
         votedByUser
           ? "border-y border-brand"
@@ -115,6 +115,6 @@ export const RankItemCard = ({
           </p>
         </div>
       </div>
-    </div>
+    </li>
   );
 };

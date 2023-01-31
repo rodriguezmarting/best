@@ -4,7 +4,6 @@ import { trpc } from "../utils/trpc";
 import trendingIcon from "../../public/trending-icon.webp";
 import Image from "next/image";
 import { RankCard } from "../components/RankCard";
-import { AuthShowcase } from "../components/AuthShowcase";
 import { LoadingSpinner } from "../utils/LoadingSpinner";
 
 const Home: NextPage = () => {
@@ -13,7 +12,7 @@ const Home: NextPage = () => {
   return (
     <>
       <main className="w-full flex-1 sm:w-3/4 md:w-3/5 lg:w-2/5">
-        <h1 className="mb-4 flex w-full items-center gap-3 px-4 pt-10 text-lg tracking-wide">
+        <h1 className="flex w-full items-center gap-3 p-6 text-lg tracking-wide">
           <Image
             src={trendingIcon}
             alt="trending"
@@ -33,9 +32,6 @@ const Home: NextPage = () => {
           </div>
         )}
       </main>
-      <footer>
-        <AuthShowcase />
-      </footer>
     </>
   );
 };

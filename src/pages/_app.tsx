@@ -7,6 +7,7 @@ import { trpc } from "../utils/trpc";
 import "../styles/globals.css";
 import Head from "next/head";
 import localFont from "@next/font/local";
+import { Header } from "../components/Header";
 
 /**
  * Rememeber to update the variable in tailwind.config.cjs if this gets updated
@@ -52,14 +53,15 @@ const MyApp: AppType<{ session: Session | null }> = ({
         <meta name="theme-color" content="#ffffff" />
       </Head>
       <SessionProvider session={session}>
+        <style jsx global>{`
+          html {
+            font-family: ${satoshiFont.style.fontFamily};
+          }
+        `}</style>
         <div
           className={`flex min-h-screen w-full flex-col items-center bg-black font-sans text-white`}
         >
-          <style jsx global>{`
-            html {
-              font-family: ${satoshiFont.style.fontFamily};
-            }
-          `}</style>
+          <Header />
           <Component {...pageProps} />
         </div>
       </SessionProvider>
