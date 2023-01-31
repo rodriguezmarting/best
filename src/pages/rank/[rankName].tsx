@@ -12,6 +12,8 @@ import { useMemo } from "react";
 import { RankItemCard } from "../../components/RankItemCard";
 import { LoadingSpinner } from "../../utils/LoadingSpinner";
 
+import { useAutoAnimate } from "@formkit/auto-animate/react";
+
 const Rank: NextPage = () => {
   const router = useRouter();
 
@@ -37,6 +39,8 @@ const Rank: NextPage = () => {
     { enabled: sessionData?.user !== undefined }
   );
 
+  const [animationParent] = useAutoAnimate();
+
   const votedIndex = useMemo(() => {
     return rankItemsQuery.data
       ? rankItemsQuery.data.findIndex(
@@ -59,7 +63,7 @@ const Rank: NextPage = () => {
   return (
     <>
       <main className="w-full flex-1 sm:w-3/4 md:w-3/5 lg:w-2/5">
-        <div className="px-4 pt-6 pb-2">
+        <div className="p-6">
           <h1 className="text-lg tracking-wide">{unKebab(name)}</h1>
           <p className="text-xs text-gray">
             {`${shortNumber(totalRankItems)} options • ${shortNumber(
@@ -76,7 +80,7 @@ const Rank: NextPage = () => {
               : null}
           </p>
         </div>
-        <div className="flex flex-col">
+        <ul className="flex flex-col" ref={animationParent}>
           {rankItemsQuery.data?.map((item, index) => (
             <RankItemCard
               key={item.rankItemName}
@@ -88,7 +92,7 @@ const Rank: NextPage = () => {
               showAuthDialog={sessionData?.user === undefined}
             />
           ))}
-        </div>
+        </ul>
       </main>
     </>
   );
