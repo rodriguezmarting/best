@@ -9,16 +9,22 @@ export const VoteDialog = ({
   showAuthDialog,
   currentVote,
   newVote,
+  setIsVoting,
 }: {
   children: ReactNode;
   showAuthDialog: boolean;
   currentVote: string;
   newVote: string;
+  setIsVoting: (isVoting: boolean) => void;
 }) => {
   const utils = trpc.useContext();
   const vote = trpc.rank.vote.useMutation({
+    onMutate: () => {
+      setIsVoting(true);
+    },
     onSuccess: () => {
       utils.invalidate();
+      setIsVoting(false);
     },
   });
 

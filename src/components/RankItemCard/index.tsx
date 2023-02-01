@@ -42,6 +42,8 @@ export const RankItemCard = ({
   votedRank,
   showAuthDialog,
   currentVote,
+  setIsVoting,
+  showVoteDialog,
 }: {
   item: RouterOutputs["rank"]["rankItemsByRankName"][number];
   rank: number;
@@ -49,14 +51,18 @@ export const RankItemCard = ({
   votedRank: number;
   showAuthDialog: boolean;
   currentVote?: string;
+  setIsVoting: (isVoting: boolean) => void;
+  showVoteDialog: boolean;
 }) => {
   const votedByUser = votedRank === rank;
-  const showVoteDialog =
-    showAuthDialog || (!!currentVote && currentVote !== item.rankItemName);
   const utils = trpc.useContext();
   const vote = trpc.rank.vote.useMutation({
+    onMutate: () => {
+      setIsVoting(true);
+    },
     onSuccess: () => {
       utils.invalidate();
+      setIsVoting(false);
     },
   });
 
@@ -79,6 +85,7 @@ export const RankItemCard = ({
             currentVote={currentVote ?? ""}
             newVote={item.rankItemName}
             showAuthDialog={showAuthDialog}
+            setIsVoting={setIsVoting}
           >
             {children}
           </VoteDialog>
@@ -87,7 +94,10 @@ export const RankItemCard = ({
         <button
           className="flex items-center justify-between"
           onClick={() => {
-            if (!showVoteDialog) vote.mutate({ rankName: item.rankItemName });
+            if (!showVoteDialog) {
+              vote.mutate({ rankName: item.rankItemName });
+            }
+            console.log(showVoteDialog, showAuthDialog);
           }}
         >
           <div className="flex items-center gap-2">
